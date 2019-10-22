@@ -406,9 +406,9 @@ wm_reg_event(xcb_window_t wid, uint32_t mask)
 	c = xcb_change_window_attributes_checked(conn, wid, XCB_CW_EVENT_MASK, val);
 	e = xcb_request_check(conn, c);
 	if (!e)
-		return 0;
+		return 1;
 
 	free(e);
 
-	return 1;
+	return 0;
 }
