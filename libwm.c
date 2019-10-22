@@ -400,7 +400,15 @@ int
 wm_reg_event(xcb_window_t wid, uint32_t mask)
 {
 	uint32_t val[] = { mask };
+	xcb_void_cookie_t c;
+	xcb_generic_error_t *e;
 
-	xcb_change_window_attributes(conn, wid, XCB_CW_EVENT_MASK, val);
-	return 0;
+	c = xcb_change_window_attributes_checked(conn, wid, XCB_CW_EVENT_MASK, val);
+	e = xcb_request_check(conn, c);
+	if (!e)
+		return 0;
+
+	free(e);
+
+	return 1;
 }
