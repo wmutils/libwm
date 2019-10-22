@@ -233,7 +233,6 @@ wm_set_border(int width, int color, xcb_window_t win)
 		retval++;
 	}
 
-	xcb_flush(conn);
 	return retval;
 }
 
@@ -271,7 +270,6 @@ wm_teleport(xcb_window_t wid, int x, int y, int w, int h)
 	values[3] = h;
 	xcb_configure_window(conn, wid, mask, values);
 
-	xcb_flush(conn);
 	return 1;
 }
 
@@ -338,7 +336,7 @@ wm_remap(xcb_window_t wid, int mode)
 			xcb_map_window(conn, wid);
 		break;
 	}
-	xcb_flush(conn);
+
 	return 1;
 }
 
@@ -387,7 +385,6 @@ wm_restack(xcb_window_t wid, uint32_t mode)
 {
 	uint32_t values[1] = { mode };
 	xcb_configure_window(conn, wid, XCB_CONFIG_WINDOW_STACK_MODE, values);
-	xcb_flush(conn);
 	return 1;
 }
 
@@ -396,7 +393,6 @@ wm_set_focus(xcb_window_t wid)
 {
 	xcb_set_input_focus(conn, XCB_INPUT_FOCUS_POINTER_ROOT, wid,
 	                    XCB_CURRENT_TIME);
-	xcb_flush(conn);
 	return 1;
 }
 
