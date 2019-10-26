@@ -25,12 +25,12 @@ wm_kill_xcb()
 }
 
 int
-wm_is_alive(xcb_window_t w)
+wm_is_alive(xcb_window_t wid)
 {
 	xcb_get_window_attributes_cookie_t c;
 	xcb_get_window_attributes_reply_t  *r;
 
-	c = xcb_get_window_attributes(conn, w);
+	c = xcb_get_window_attributes(conn, wid);
 	r = xcb_get_window_attributes_reply(conn, c, NULL);
 
 	if (r == NULL)
@@ -41,13 +41,13 @@ wm_is_alive(xcb_window_t w)
 }
 
 int
-wm_is_mapped(xcb_window_t w)
+wm_is_mapped(xcb_window_t wid)
 {
 	int ms;
 	xcb_get_window_attributes_cookie_t c;
 	xcb_get_window_attributes_reply_t  *r;
 
-	c = xcb_get_window_attributes(conn, w);
+	c = xcb_get_window_attributes(conn, wid);
 	r = xcb_get_window_attributes_reply(conn, c, NULL);
 
 	if (r == NULL)
@@ -88,13 +88,13 @@ wm_get_screen()
 }
 
 int
-wm_get_windows(xcb_window_t w, xcb_window_t **l)
+wm_get_windows(xcb_window_t wid, xcb_window_t **l)
 {
 	uint32_t childnum = 0;
 	xcb_query_tree_cookie_t c;
 	xcb_query_tree_reply_t *r;
 
-	c = xcb_query_tree(conn, w);
+	c = xcb_query_tree(conn, wid);
 	r = xcb_query_tree_reply(conn, c, NULL);
 	if (r == NULL)
 		return -1;
@@ -112,7 +112,7 @@ wm_get_windows(xcb_window_t w, xcb_window_t **l)
 xcb_window_t
 wm_get_focus(void)
 {
-	xcb_window_t w = 0;
+	xcb_window_t wid = 0;
 	xcb_get_input_focus_cookie_t c;
 	xcb_get_input_focus_reply_t *r;
 
@@ -121,19 +121,19 @@ wm_get_focus(void)
 	if (r == NULL)
 		return -1;
 
-	w = r->focus;
+	wid = r->focus;
 	free(r);
-	return w;
+	return wid;
 }
 
 
 int
-wm_get_attribute(xcb_window_t w, int attr)
+wm_get_attribute(xcb_window_t wid, int attr)
 {
 	xcb_get_geometry_cookie_t c;
 	xcb_get_geometry_reply_t *r;
 
-	c = xcb_get_geometry(conn, w);
+	c = xcb_get_geometry(conn, wid);
 	r = xcb_get_geometry_reply(conn, c, NULL);
 
 	if (r == NULL)
@@ -213,7 +213,7 @@ wm_get_cursor(int mode, uint32_t wid, int *x, int *y)
 }
 
 int
-wm_set_border(int width, int color, xcb_window_t win)
+wm_set_border(int width, int color, xcb_window_t wid)
 {
 	uint32_t values[1];
 	int mask, retval = 0;
@@ -221,7 +221,7 @@ wm_set_border(int width, int color, xcb_window_t win)
 	if (width > -1) {
 		values[0] = width;
 		mask = XCB_CONFIG_WINDOW_BORDER_WIDTH;
-		xcb_configure_window(conn, win, mask, values);
+		xcb_configure_window(conn, wid, mask, values);
 		retval++;
 	}
 
@@ -229,7 +229,7 @@ wm_set_border(int width, int color, xcb_window_t win)
 	if (color > -1) {
 		values[0] = color;
 		mask = XCB_CW_BORDER_PIXEL;
-		xcb_change_window_attributes(conn, win, mask, values);
+		xcb_change_window_attributes(conn, wid, mask, values);
 		retval++;
 	}
 
@@ -245,12 +245,12 @@ wm_set_cursor(int x, int y, int mode)
 }
 
 int
-wm_is_listable(xcb_window_t w, int mask)
+wm_is_listable(xcb_window_t wid, int mask)
 {
 	if ((mask & LIST_ALL)
-		|| (!wm_is_mapped (w) && mask & LIST_HIDDEN)
-		|| ( wm_is_ignored(w) && mask & LIST_IGNORE)
-		|| ( wm_is_mapped (w) && !wm_is_ignored(w) && mask == 0))
+		|| (!wm_is_mapped (wid) && mask & LIST_HIDDEN)
+		|| ( wm_is_ignored(wid) && mask & LIST_IGNORE)
+		|| ( wm_is_mapped (wid) && !wm_is_ignored(wid) && mask == 0))
 		return 1;
 
 	return 0;
@@ -308,12 +308,12 @@ wm_move(xcb_window_t wid, int mode, int x, int y)
 }
 
 int
-wm_set_override(xcb_window_t w, int or)
+wm_set_override(xcb_window_t wid, int or)
 {
 	uint32_t mask = XCB_CW_OVERRIDE_REDIRECT;
 	uint32_t val[] = { or };
 
-	xcb_change_window_attributes(conn, w, mask, val);
+	xcb_change_window_attributes(conn, wid, mask, val);
 
 	return 1;
 }
