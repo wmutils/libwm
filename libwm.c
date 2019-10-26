@@ -1,4 +1,5 @@
 #include <xcb/xcb.h>
+#include <xcb/xcb_cursor.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -399,7 +400,7 @@ wm_set_focus(xcb_window_t wid)
 }
 
 int
-wm_reg_event(xcb_window_t wid, uint32_t mask)
+wm_reg_window_event(xcb_window_t wid, uint32_t mask)
 {
 	uint32_t val[] = { mask };
 	xcb_void_cookie_t c;
@@ -411,5 +412,34 @@ wm_reg_event(xcb_window_t wid, uint32_t mask)
 		return -1;
 
 	free(e);
+	return 0;
+}
+
+
+int
+wm_reg_cursor_event(xcb_window_t wid, uint32_t mask, char *cursor)
+{
+	xcb_cursor_t p;
+	xcb_cursor_context_t *cx;
+	xcb_grab_pointer_cookie_t c;
+	xcb_grab_pointer_reply_t *r;
+
+	p = XCB_NONE;
+	if (cursor) {
+		if (xcb_cursor_context_new(conn, scrn, &cx) < 0)
+			return -1;
+
+		p = xcb_cursor_load_cursor(cx, cursor);
+	}
+
+	c = xcb_grab_pointer(conn, 1, scrn->root, mask,
+		XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC,
+		XCB_NONE, p, XCB_CURRENT_TIME);
+
+	r = xcb_grab_pointer_reply(conn, c, NULL);
+	if (!r || r->status != XCB_GRAB_STATUS_SUCCESS)
+		return -1;
+
+	xcb_cursor_context_free(cx);
 	return 0;
 }

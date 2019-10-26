@@ -207,6 +207,14 @@ int wm_restack(xcb_window_t wid, uint32_t mode);
  * Register the given event(s) on the window.
  * Multiple events can be registered by ORing them together
  */
-int wm_reg_event(xcb_window_t wid, uint32_t mask);
+int wm_reg_window_event(xcb_window_t wid, uint32_t mask);
+
+/*
+ * Register the given cursor event(s) on the window.
+ * Multiple events can be registered by ORing them together.
+ * The cursor will be changed to the `cursor` while the pointer is
+ * grabbed, if not NULL.
+ */
+int wm_reg_cursor_event(xcb_window_t wid, uint32_t mask, char *cursor);
 
 #endif /* __LIBWM_H__ */
