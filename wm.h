@@ -93,7 +93,7 @@ int wm_is_mapped(xcb_window_t wid);
 
 /*
  * Fills the given pointer with the value of the atom for the given window
- * Returns 1 if a value can't be retrieved
+ * Returns -1 if a value can't be retrieved
  */
 int wm_get_atom_string(xcb_window_t wid, xcb_atom_t atom, char **value);
 
@@ -106,17 +106,18 @@ int wm_get_screen();
  * Ask the list of all existing windows to the X server, and fills the `*list`
  * argument with them.
  * The windows are listed in stacking order, from lower to upper window.
+ * Returns the number of windows in the *list array
  */
 int wm_get_windows(xcb_window_t wid, xcb_window_t **list);
 
 /*
- * Get focused window identifier
- * returns -1 on error
+ * Returns the window that has keyboard focus
+ * Will return the root window ID if no window has focus
  */
 xcb_window_t wm_get_focus(void);
 
 /*
- * Retrive the value of an attribute for a specific windows.
+ * Retrieve the value of an attribute for a specific windows.
  * The possible values for the attributes are:
  * 	ATTR_W - width
  * 	ATTR_H - height
@@ -155,10 +156,9 @@ int wm_set_focus(xcb_window_t wid);
 int wm_set_cursor(int x, int y, int mode);
 
 /*
- * set override_redirect on window
- * args:	wid, {0,1}
+ * Set override_redirect value for given window
  */
-int wm_set_override(xcb_window_t, int);
+int wm_set_override(xcb_window_t wid, int override);
 
 /*
  * Teleport a window to the given position.
@@ -176,14 +176,6 @@ int wm_teleport(xcb_window_t wid, int w, int h, int x, int y);
 int wm_move(xcb_window_t wid, int mode, int x, int y);
 
 /*
- * Change the mapping state of a window. The `mode` attribute can be as follow:
- * 	MAP
- * 	UNMAP
- * 	TOGGLE
- */
-int wm_remap(xcb_window_t wid, int mode);
-
-/*
  * Resize a window to the given size, either relatively or absolutely.
  * If the wm_resize is supposed to put an area of the window outside the screen,
  * then the windows will only be wm_resized to the edge of the screen.
@@ -192,6 +184,14 @@ int wm_remap(xcb_window_t wid, int mode);
  * `wm_teleport()` instead.
  */
 int wm_resize(xcb_window_t wid, int mode, int w, int h);
+
+/*
+ * Change the mapping state of a window. The `mode` attribute can be as follow:
+ * 	MAP
+ * 	UNMAP
+ * 	TOGGLE
+ */
+int wm_remap(xcb_window_t wid, int mode);
 
 /*
  * Change the position of the given window in the stack order.
