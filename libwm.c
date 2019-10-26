@@ -10,17 +10,16 @@ wm_init_xcb()
 {
 	conn = xcb_connect(NULL, NULL);
 	if (xcb_connection_has_error(conn))
-		return 0;
-	return 1;
+		return -1;
+	return 0;
 }
 
 int
 wm_kill_xcb()
 {
-	if (conn) {
-		xcb_disconnect(conn);
-		return 1;
-	}
+	if (!conn)
+		return -1;
+	xcb_disconnect(conn);
 	return 0;
 }
 
@@ -83,7 +82,7 @@ wm_is_listable(xcb_window_t wid, int mask)
 {
 	if (!mask && wm_is_mapped (wid) && !wm_is_ignored(wid))
 		return 1;
-	if ((mask & LIST_ALL)
+	if ((mask & LIST_ALL))
 		return 1;
 	if (!wm_is_mapped (wid) && mask & LIST_HIDDEN)
 		return 1;
@@ -98,8 +97,8 @@ wm_get_screen()
 {
 	scrn = xcb_setup_roots_iterator(xcb_get_setup(conn)).data;
 	if (scrn == NULL)
-		return 0;
-	return 1;
+		return -1;
+	return 0;
 }
 
 int
@@ -134,7 +133,7 @@ wm_get_focus(void)
 	c = xcb_get_input_focus(conn);
 	r = xcb_get_input_focus_reply(conn, c, NULL);
 	if (r == NULL)
-		return -1;
+		return scrn->root;
 
 	wid = r->focus;
 	free(r);
@@ -189,14 +188,14 @@ wm_get_atom_string(xcb_window_t wid, xcb_atom_t atom, char **value)
 	if (reply == NULL) {
 		free(reply);
 		*value = NULL;
-		return 1;
+		return -1;
 	}
 
 	len = xcb_get_property_value_length(reply);
 	*value = realloc(value, len);
 
 	if (value == NULL)
-		return 1;
+		return -1;
 
 	*value = (char*)xcb_get_property_value(reply);
 	free(reply);
@@ -214,7 +213,7 @@ wm_get_cursor(int mode, uint32_t wid, int *x, int *y)
 	r = xcb_query_pointer_reply(conn, c, NULL);
 
 	if (r == NULL)
-		return 0;
+		return -1;
 
 	if (r->child != XCB_NONE) {
 		*x = r->win_x;
@@ -224,7 +223,7 @@ wm_get_cursor(int mode, uint32_t wid, int *x, int *y)
 		*y = r->root_y;
 	}
 
-	return 1;
+	return 0;
 }
 
 int
@@ -248,7 +247,7 @@ wm_set_border(int width, int color, xcb_window_t wid)
 		retval++;
 	}
 
-	return retval;
+	return 0;
 }
 
 int
@@ -273,7 +272,7 @@ wm_teleport(xcb_window_t wid, int x, int y, int w, int h)
 	values[3] = h;
 	xcb_configure_window(conn, wid, mask, values);
 
-	return 1;
+	return 0;
 }
 
 int
@@ -307,7 +306,7 @@ wm_move(xcb_window_t wid, int mode, int x, int y)
 		y = scrn->height_in_pixels - curh - 2*curb;
 
 	wm_teleport(wid, x, y, curw, curh);
-	return 1;
+	return 0;
 }
 
 int
@@ -318,7 +317,7 @@ wm_set_override(xcb_window_t wid, int or)
 
 	xcb_change_window_attributes(conn, wid, mask, val);
 
-	return 1;
+	return 0;
 }
 
 
@@ -340,7 +339,7 @@ wm_remap(xcb_window_t wid, int mode)
 		break;
 	}
 
-	return 1;
+	return 0;
 }
 
 int
@@ -380,7 +379,7 @@ wm_resize(xcb_window_t wid, int mode, int w, int h)
 		h = scrn->height_in_pixels - cury - 2*curb;
 
 	wm_teleport(wid, curx, cury, w, h);
-	return 1;
+	return 0;
 }
 
 int
@@ -388,7 +387,7 @@ wm_restack(xcb_window_t wid, uint32_t mode)
 {
 	uint32_t values[1] = { mode };
 	xcb_configure_window(conn, wid, XCB_CONFIG_WINDOW_STACK_MODE, values);
-	return 1;
+	return 0;
 }
 
 int
@@ -396,7 +395,7 @@ wm_set_focus(xcb_window_t wid)
 {
 	xcb_set_input_focus(conn, XCB_INPUT_FOCUS_POINTER_ROOT, wid,
 	                    XCB_CURRENT_TIME);
-	return 1;
+	return 0;
 }
 
 int
@@ -409,9 +408,8 @@ wm_reg_event(xcb_window_t wid, uint32_t mask)
 	c = xcb_change_window_attributes_checked(conn, wid, XCB_CW_EVENT_MASK, val);
 	e = xcb_request_check(conn, c);
 	if (!e)
-		return 1;
+		return -1;
 
 	free(e);
-
 	return 0;
 }
