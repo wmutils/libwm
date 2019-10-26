@@ -79,6 +79,21 @@ wm_is_ignored(xcb_window_t wid)
 }
 
 int
+wm_is_listable(xcb_window_t wid, int mask)
+{
+	if (!mask && wm_is_mapped (wid) && !wm_is_ignored(wid))
+		return 1;
+	if ((mask & LIST_ALL)
+		return 1;
+	if (!wm_is_mapped (wid) && mask & LIST_HIDDEN)
+		return 1;
+	if (wm_is_ignored(wid) && mask & LIST_IGNORE)
+		return 1;
+
+	return 0;
+}
+
+int
 wm_get_screen()
 {
 	scrn = xcb_setup_roots_iterator(xcb_get_setup(conn)).data;
@@ -241,18 +256,6 @@ wm_set_cursor(int x, int y, int mode)
 {
 	xcb_warp_pointer(conn, XCB_NONE, mode ? XCB_NONE : scrn->root,
 			0, 0, 0, 0, x, y);
-	return 1;
-}
-
-int
-wm_is_listable(xcb_window_t wid, int mask)
-{
-	if ((mask & LIST_ALL)
-		|| (!wm_is_mapped (wid) && mask & LIST_HIDDEN)
-		|| ( wm_is_ignored(wid) && mask & LIST_IGNORE)
-		|| ( wm_is_mapped (wid) && !wm_is_ignored(wid) && mask == 0))
-		return 1;
-
 	return 0;
 }
 
