@@ -211,7 +211,7 @@ int wm_remap(xcb_window_t wid, int mode);
  * 	XCB_STACK_MODE_BELOW
  * 	XCB_STACK_MODE_OPPOSITE
  */
-int wm_restack(xcb_window_t wid, uint32_t mode, xcb_window_t sibling);
+int wm_restack(xcb_window_t wid, uint32_t mode);
 
 /*
  * Register the given event(s) on the window.
