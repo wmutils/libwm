@@ -92,10 +92,20 @@ int wm_is_listable(xcb_window_t wid, int mask);
 int wm_is_mapped(xcb_window_t wid);
 
 /*
- * Fills the given pointer with the value of the atom for the given window
- * Returns -1 if a value can't be retrieved
+ * Request the X server to add a new atom, and return this new atom ID
  */
-int wm_get_atom_string(xcb_window_t wid, xcb_atom_t atom, char **value);
+xcb_atom_t wm_add_atom(xcb_atom_t type, char *name, size_t len);
+
+/*
+ * Change the value of the specified atom
+ */
+int wm_set_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t len, void *data);
+
+/*
+ * Retrieve the value of the given atom. The value length is set in the
+ * `len` pointer if specified
+ */
+void *wm_get_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t *len);
 
 /*
  * Get the first screen, and set the `scrn` global variable accordingly.
@@ -201,7 +211,7 @@ int wm_remap(xcb_window_t wid, int mode);
  * 	XCB_STACK_MODE_BELOW
  * 	XCB_STACK_MODE_OPPOSITE
  */
-int wm_restack(xcb_window_t wid, uint32_t mode);
+int wm_restack(xcb_window_t wid, uint32_t mode, xcb_window_t sibling);
 
 /*
  * Register the given event(s) on the window.

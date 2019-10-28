@@ -176,32 +176,65 @@ wm_get_attribute(xcb_window_t wid, int attr)
 	return attr;
 }
 
-int
-wm_get_atom_string(xcb_window_t wid, xcb_atom_t atom, char **value)
+xcb_atom_t
+wm_add_atom(xcb_atom_t type, char *name, size_t len)
 {
-	int len;
-	xcb_get_property_cookie_t cookie;
-	xcb_get_property_reply_t *reply;
+	xcb_atom_t atom;
+	xcb_intern_atom_cookie_t c;
+	xcb_intern_atom_reply_t *r;
 
-	cookie = xcb_get_property(conn, 0, wid, atom, XCB_ATOM_STRING, 0, 0);
-	reply = xcb_get_property_reply(conn, cookie, NULL);
+	c = xcb_intern_atom(conn, 0, len, name);
+	r = xcb_intern_atom_reply(conn, c, NULL);
+	if (!r)
+		return 0;
 
-	if (reply == NULL) {
-		free(reply);
-		*value = NULL;
+	atom = r->atom;
+	free(r);
+
+	return atom;
+}
+
+int
+wm_set_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t len, void *data)
+{
+	xcb_void_cookie_t c;
+	xcb_generic_error_t *e;
+
+	c = xcb_change_property_checked(conn, XCB_PROP_MODE_REPLACE,
+		wid, atom, type, 32, len, data);
+	e = xcb_request_check(conn, c);
+	if (!e)
 		return -1;
-	}
 
-	len = xcb_get_property_value_length(reply);
-	*value = realloc(value, len);
-
-	if (value == NULL)
-		return -1;
-
-	*value = (char*)xcb_get_property_value(reply);
-	free(reply);
+	free(e);
 
 	return 0;
+}
+
+void *
+wm_get_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t *len)
+{
+	void *d;
+	size_t n;
+	xcb_get_property_cookie_t c;
+	xcb_get_property_reply_t *r;
+
+	c = xcb_get_property(conn, 0, wid, atom, type, 0, 1);
+	r = xcb_get_property_reply(conn, c, NULL);
+	if (!r)
+		return NULL;
+
+	if (!(n = xcb_get_property_value_length(r))) {
+		free(r);
+		return NULL;
+	}
+
+	if (len)
+		*len = n;
+
+	d = xcb_get_property_value(r);
+
+	return d;
 }
 
 int
@@ -384,9 +417,15 @@ wm_resize(xcb_window_t wid, int mode, int w, int h)
 }
 
 int
-wm_restack(xcb_window_t wid, uint32_t mode)
+wm_restack(xcb_window_t wid, uint32_t mode, xcb_window_t sibling)
 {
-	uint32_t values[1] = { mode };
+	uint32_t r = 0, mask = 0, values[2];
+	if (sibling) {
+		mask |= XCB_CONFIG_WINDOW_SIBLING;
+		values[r++] = sibling;
+	}
+	mask |= XCB_CONFIG_WINDOW_STACK_MODE;
+	values[r++] = mode;
 	xcb_configure_window(conn, wid, XCB_CONFIG_WINDOW_STACK_MODE, values);
 	return 0;
 }
