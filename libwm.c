@@ -197,6 +197,7 @@ wm_add_atom(xcb_atom_t type, char *name, size_t len)
 int
 wm_set_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t len, void *data)
 {
+	int errcode;
 	xcb_void_cookie_t c;
 	xcb_generic_error_t *e;
 
@@ -204,11 +205,12 @@ wm_set_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t len, void
 		wid, atom, type, 32, len, data);
 	e = xcb_request_check(conn, c);
 	if (!e)
-		return -1;
+		return 0;
 
+	errcode = e->error_code;
 	free(e);
 
-	return 0;
+	return errcode;
 }
 
 void *
