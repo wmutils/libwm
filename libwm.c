@@ -423,7 +423,7 @@ wm_resize(xcb_window_t wid, int mode, int w, int h)
 int
 wm_restack(xcb_window_t wid, uint32_t mode)
 {
-	uint32_t values[1];
+	uint32_t values[1] = { mode };
 	xcb_configure_window(conn, wid, XCB_CONFIG_WINDOW_STACK_MODE, values);
 	return 0;
 }
