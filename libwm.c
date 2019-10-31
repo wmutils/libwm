@@ -266,22 +266,24 @@ int
 wm_set_border(int width, int color, xcb_window_t wid)
 {
 	uint32_t values[1];
-	int mask, retval = 0;
-	/* change width if > 0 */
+	int mask;
+
+	/* change width if >= 0 */
 	if (width > -1) {
 		values[0] = width;
 		mask = XCB_CONFIG_WINDOW_BORDER_WIDTH;
 		xcb_configure_window(conn, wid, mask, values);
-		retval++;
 	}
 
-	/* change color if > 0 */
-	if (color > -1) {
-		values[0] = color;
-		mask = XCB_CW_BORDER_PIXEL;
-		xcb_change_window_attributes(conn, wid, mask, values);
-		retval++;
-	}
+	/*
+	 * color is an ARGB representation (eg. 0x80ff0000) for
+	 * translucent red.
+	 * Absolutely all values are valid color representations, so we
+	 * will set it no matter what.
+	 */
+	values[0] = color;
+	mask = XCB_CW_BORDER_PIXEL;
+	xcb_change_window_attributes(conn, wid, mask, values);
 
 	return 0;
 }
