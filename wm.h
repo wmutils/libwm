@@ -94,7 +94,7 @@ int wm_is_mapped(xcb_window_t wid);
 /*
  * Request the X server to add a new atom, and return this new atom ID
  */
-xcb_atom_t wm_add_atom(xcb_atom_t type, char *name, size_t len);
+xcb_atom_t wm_add_atom(char *name, size_t len);
 
 /*
  * Change the value of the specified atom

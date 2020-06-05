@@ -177,7 +177,7 @@ wm_get_attribute(xcb_window_t wid, int attr)
 }
 
 xcb_atom_t
-wm_add_atom(xcb_atom_t type, char *name, size_t len)
+wm_add_atom(char *name, size_t len)
 {
 	xcb_atom_t atom;
 	xcb_intern_atom_cookie_t c;
