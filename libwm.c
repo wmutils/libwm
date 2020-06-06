@@ -221,7 +221,7 @@ wm_get_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t *len)
 	xcb_get_property_cookie_t c;
 	xcb_get_property_reply_t *r;
 
-	c = xcb_get_property(conn, 0, wid, atom, type, 0, 1);
+	c = xcb_get_property(conn, 0, wid, atom, type, 0, 32);
 	r = xcb_get_property_reply(conn, c, NULL);
 	if (!r)
 		return NULL;
