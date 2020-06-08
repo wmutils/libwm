@@ -29,7 +29,8 @@ Here is the list of all functions provided by `libwm`:
 	wm_is_mapped(wid);
 	wm_add_atom(name, len);
 	wm_set_atom(wid, atom, type, len, data);
-	wm_get_atom_string(wid, atom, &value);
+	wm_get_atom(wid, atom, type, &len);
+	wm_get_atom_name(wid, atom, &len);
 	wm_get_screen();
 	wm_get_windows(wid, &list);
 	wm_get_focus();

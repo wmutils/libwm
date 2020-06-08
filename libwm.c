@@ -239,6 +239,37 @@ wm_get_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t *len)
 	return d;
 }
 
+char *
+wm_get_atom_name(xcb_atom_t atom, size_t *len)
+{
+	size_t n;
+	char *name;
+	xcb_get_atom_name_cookie_t c;
+	xcb_get_atom_name_reply_t *r;
+
+	c = xcb_get_atom_name(conn, atom);
+	r = xcb_get_atom_name_reply(conn, c, NULL);
+	if (!r)
+		return NULL;
+
+	n = xcb_get_atom_name_name_length(r) + 1;
+	name = malloc(xcb_get_atom_name_name_length(r) + 1);
+	if (!name) {
+		free(r);
+		return NULL;
+	}
+
+	if (len)
+		*len = n;
+
+	memset(name, 0, xcb_get_atom_name_name_length(r) + 1);
+	strncpy(name, xcb_get_atom_name_name(r), xcb_get_atom_name_name_length(r));
+	free(r);
+
+	return name;
+}
+
+
 int
 wm_get_cursor(int mode, uint32_t wid, int *x, int *y)
 {

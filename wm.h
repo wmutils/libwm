@@ -108,6 +108,12 @@ int wm_set_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t len, 
 void *wm_get_atom(xcb_window_t wid, xcb_atom_t atom, xcb_atom_t type, size_t *len);
 
 /*
+ * Retrieve the name of the given atom. The name length is set in the
+ * `len` pointer if specified
+ */
+char *wm_get_atom_name(xcb_atom_t atom, size_t *len);
+
+/*
  * Get the first screen, and set the `scrn` global variable accordingly.
  */
 int wm_get_screen();
