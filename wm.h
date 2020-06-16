@@ -233,4 +233,13 @@ int wm_reg_window_event(xcb_window_t wid, uint32_t mask);
  */
 int wm_reg_cursor_event(xcb_window_t wid, uint32_t mask, char *cursor);
 
+/*
+ * Return the number of active monitors connected to the display where
+ * window `wid` is sitting.
+ * The `list` argument, if not NULL, will be filled with the monitor's
+ * index numbers. Note that `list` must be big enough to hold all indexes,
+ * as it is not reallocated.
+ */
+int wm_get_monitors(xcb_window_t wid, int *list);
+
 #endif /* __LIBWM_H__ */

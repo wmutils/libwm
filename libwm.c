@@ -1,5 +1,6 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_cursor.h>
+#include <xcb/randr.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -510,4 +511,31 @@ wm_reg_cursor_event(xcb_window_t wid, uint32_t mask, char *cursor)
 
 	xcb_cursor_context_free(cx);
 	return 0;
+}
+
+int
+wm_get_monitors(xcb_window_t wid, int *l)
+{
+	int n;
+	xcb_randr_get_monitors_cookie_t c;
+	xcb_randr_get_monitors_reply_t *r;
+	xcb_randr_monitor_info_iterator_t i;
+
+	/* get_active: ignore inactive monitors */
+	c = xcb_randr_get_monitors(conn, wid, 0);
+	r = xcb_randr_get_monitors_reply(conn, c, NULL);
+	if (!r)
+		return -1;
+
+	i = xcb_randr_get_monitors_monitors_iterator(r);
+	if (!i.data)
+		return 0;
+
+	for (n = 0; l && i.rem > 0; xcb_randr_monitor_info_next(&i))
+		l[n++] = i.index;
+
+	n = r->nMonitors;
+	free(r);
+
+	return n;
 }

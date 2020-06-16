@@ -4,4 +4,4 @@ CC      = cc
 LD      = $(CC)
 
 CFLAGS  = -std=c99 -pedantic -Wall -fPIC -Os
-LDFLAGS = -lxcb
+LDFLAGS = -lxcb -lxcb-randr

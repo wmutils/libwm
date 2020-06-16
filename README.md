@@ -46,6 +46,7 @@ Here is the list of all functions provided by `libwm`:
 	wm_resize(wid, mode, w, h);
 	wm_restack(wid, mode);
 	wm_reg_event(wid, mask);
+	wm_get_monitors(wid, list);
 
 Their usage is specified in the `wm.h` header file, as it is quite small for
 now.
