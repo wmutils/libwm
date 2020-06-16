@@ -539,3 +539,38 @@ wm_get_monitors(xcb_window_t wid, int *l)
 
 	return n;
 }
+
+xcb_randr_monitor_info_t *
+wm_get_monitor(int index)
+{
+	xcb_randr_monitor_info_t *monitor;
+	xcb_randr_get_monitors_cookie_t c;
+	xcb_randr_get_monitors_reply_t *r;
+	xcb_randr_monitor_info_iterator_t i;
+
+	/* get_active: ignore inactive monitors */
+	c = xcb_randr_get_monitors(conn, scrn->root, 0);
+	r = xcb_randr_get_monitors_reply(conn, c, NULL);
+	if (!r)
+		return NULL;
+
+	i = xcb_randr_get_monitors_monitors_iterator(r);
+	if (!i.data)
+		return NULL;
+
+	for (; i.rem > 0; xcb_randr_monitor_info_next(&i)) {
+		if (i.index != index)
+			continue;
+
+		monitor = calloc(1, sizeof(*monitor));
+		if (!monitor)
+			return NULL;
+
+		memcpy(monitor, i.data, sizeof(*monitor));
+		free(r);
+		return monitor;
+	}
+
+	free(r);
+	return NULL;
+}

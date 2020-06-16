@@ -242,4 +242,9 @@ int wm_reg_cursor_event(xcb_window_t wid, uint32_t mask, char *cursor);
  */
 int wm_get_monitors(xcb_window_t wid, int *list);
 
+/*
+ * Return the info scructure defining monitor with index number `index`.
+ */
+xcb_randr_monitor_info_t *wm_get_monitor(int index);
+
 #endif /* __LIBWM_H__ */
