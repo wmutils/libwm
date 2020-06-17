@@ -574,3 +574,27 @@ wm_get_monitor(int index)
 	free(r);
 	return NULL;
 }
+
+int
+wm_find_monitor(int x, int y)
+{
+	/* patch me if you use more than 64 monitors, and get a reward! */
+	int i, n, monitors[64];
+	xcb_randr_monitor_info_t *p;
+
+	n = wm_get_monitors(scrn->root, monitors);
+	for (i = 0; i < n; i++) {
+		p = wm_get_monitor(monitors[i]);
+		if (!p)
+			continue;
+
+		if (p->x <= x && p->x + p->width  >= x
+		 && p->y <= y && p->y + p->height >= y) {
+			free(p);
+			return monitors[i];
+		}
+		free(p);
+	}
+
+	return -1;
+}

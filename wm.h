@@ -247,4 +247,10 @@ int wm_get_monitors(xcb_window_t wid, int *list);
  */
 xcb_randr_monitor_info_t *wm_get_monitor(int index);
 
+/*
+ * Return the index of the (first) monitor associated with the
+ * coordinates.
+ */
+int wm_find_monitor(int x, int y);
+
 #endif /* __LIBWM_H__ */
