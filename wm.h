@@ -40,6 +40,7 @@ enum {
 	ATTR_B = 1 << 4,
 	ATTR_M = 1 << 5,
 	ATTR_I = 1 << 6,
+	ATTR_D = 1 << 7,
 	ATTR_MAX
 };
 

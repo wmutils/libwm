@@ -171,6 +171,9 @@ wm_get_attribute(xcb_window_t wid, int attr)
 	case ATTR_B:
 		attr = r->border_width;
 		break;
+	case ATTR_D:
+		attr = r->depth;
+		break;
 	}
 
 	free(r);
