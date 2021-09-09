@@ -582,19 +582,29 @@ int
 wm_find_monitor(int x, int y)
 {
 	/* patch me if you use more than 64 monitors, and get a reward! */
-	int i, n, monitors[64];
+	int n, monitors[64];
 	xcb_randr_monitor_info_t *p;
 
 	n = wm_get_monitors(scrn->root, monitors);
-	for (i = 0; i < n; i++) {
-		p = wm_get_monitor(monitors[i]);
+
+	/*
+	 * When you have multiple monitors, like so:
+	 * - 1920x1080+0+0
+	 * - 1920x1080+1920+0
+	 * the pixel located at 1920,500 would match both the first AND
+	 * second monitor. By crawling monitors backward it ensures that
+	 * the "farthest" monitor will match first.
+	 * Also I love that backward loop notation.
+	 */
+	while (n --> 0) {
+		p = wm_get_monitor(monitors[n]);
 		if (!p)
 			continue;
 
-		if (p->x <= x && p->x + p->width  >= x
-		 && p->y <= y && p->y + p->height >= y) {
+		if (x >= p->x  && x <= p->x + p->width
+		 && y >= p->y  && y <= p->y + p->height) {
 			free(p);
-			return monitors[i];
+			return monitors[n];
 		}
 		free(p);
 	}
